@@ -1,0 +1,26 @@
+/* minimum stylesheet for pandoc output from markdown (gfm) */
+/* revised from htmlput.css written for usf formatter */
+
+* { line-height: 150%; }
+body { margin: 2em 4em; }
+li { margin-bottom: 0.3em; }
+pre { line-height: 125%; background: whitesmoke; }
+blockquote p { line-height: 125%; background: seashell; font-size: 80%; }
+table { border-collapse: collapse; }
+table td { border-top: solid thin gray; padding: 6pt; }
+
+h1, h2, h3, h4, h5, h6 { font-family: sans-serif; }
+h1 { color: navy; }
+h2
+{
+ margin-top: 3em;
+ margin-bottom: 1em;
+ border-top: 1px lightsteelblue solid;
+ padding-top: 0.5em;
+}
+h3, h4 { color: navy; }
+
+a:link { color: blue; text-decoration: none }
+a:visited { color: purple; text-decoration: none }
+a:hover { color: teal; }
+a:active { color: aqua; }

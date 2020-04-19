@@ -35,8 +35,8 @@
 	HTTP_ACCEPT_LANGUAGE = "$HTTP_ACCEPT_LANGUAGE"
 
 # replacer directory
-#REP_DIR=/usr/local/bin
-REP_DIR=/home/pi/mlr
+REP_DIR=/usr/local/bin
+#REP_DIR=/home/pi/mlr
 
 # change virtual extension to real one
 PATH_INFO=${PATH_INFO/\.mdp/.md}
