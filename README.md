@@ -17,4 +17,4 @@ See [README-onweb](README-onweb.md)
 As a bonus, tool for embedding small inline SVG charts using a simple text instruction.  
 See [README-draw](README-draw.md)
 
-The [brief summary](http://www.kobu.com/getaheta) describes what you can do with these tools.
+The [brief summary](http://www.kobu.com/author) describes what you can do with these tools.
