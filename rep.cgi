@@ -34,9 +34,10 @@
 	QUERY_STRING = "$QUERY_STRING", \
 	HTTP_ACCEPT_LANGUAGE = "$HTTP_ACCEPT_LANGUAGE"
 
-# replacer directory
-REP_DIR=/usr/local/bin
-#REP_DIR=/home/pi/mlr
+# location of replacer files
+if [ -z "$REP_HOME" ]; then
+	REP_HOME=/usr/local/bin
+fi
 
 # change virtual extension to real one
 PATH_INFO=${PATH_INFO/\.mdp/.md}
@@ -57,9 +58,7 @@ echo 'Content-Type: text/html'
 echo ''
 
 # conversion
-REP_DIR=/home/pi/mlr
-cat ${FULLPATH} | $REP_DIR/rep.pl -s${SELECTOR} -p${DIRNAME} | \
-	$REP_DIR/draw.pl | \
+cat ${FULLPATH} | $REP_HOME/rep.pl -s${SELECTOR} -p${DIRNAME} | \
+	$REP_HOME/draw.pl | \
 	pandoc -f gfm -t html5 -c "/pandoc-gfm.css" \
 	-T "Converted" -M title=${BASENAME}
-
