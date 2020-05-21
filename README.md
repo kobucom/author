@@ -26,7 +26,7 @@ See [README-draw](README-draw.md)
 
 A brief summary describes what you can do and how you can do with these tools.
 
-- [English](https://www.kobu.com/author/index-en.html)
-- [Japansese](https://www.kobu.com/author/index.html)
+- [English](https://kobu.com/author/index-en.html)
+- [Japansese](https://kobu.com/author/index.html)
 
-For architecture and background behind the tools, see [arch.html](arch.html).
+For architecture and background behind the tools, see [arch.html](https://kobu.com/author/arch.html).
