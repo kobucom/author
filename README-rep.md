@@ -1,6 +1,7 @@
-# Passage Selector Loader in Perl
+# Passage Selector in Perl
 
 2020-apr-8 first edition
+2020-apr-20 second edition
 
 This program is formerly called 'Replacer' so the text below contains this name.
 
@@ -13,6 +14,16 @@ A separate document, [README-onweb](README-onweb.md), describes another configur
 
 # Part One: Guide
 
+## Changes
+
+Design changes in the second edition are follows:
+
+- Multiple target selectors can be specified (-s option changed)
+- Available languages can be specified (-l option added)
+- Language selectors and dot-prefixed version selectors are separated
+- tow-level selector stack (language and version selection can be nested each other)
+- Loader function removed (no more -p option)
+
 ## Introduction
 
 The Replacer reads a souce test mixed with passages for different purposes and writes the output only with the selected passages.
@@ -21,9 +32,9 @@ The Replacer reads a souce test mixed with passages for different purposes and w
 paper "Source" -; ball "Replacer" -; paper "Output"
 !end!
 
-For example, Replacer can select or load text written in a specified language and/or for a specific version.
+For example, Replacer can select text written in a specified language and for a specific version.
 
-## Passage and selector
+## Passage and Selector
 
 Let me introduce some important words:
 
@@ -43,20 +54,11 @@ To create a Japanese document, only Japanese passages are taken:
 |  | Japanese | -> | Japanese |  |
 |  |  |  |  |  |
 
-In addition to a main source text file, you can prepare a passage of text as a separate file written for a specific purpose, such as a specific language or version.
-This kind of files are called **loaded files** or just load files.
-A location marker that specifies where a specific load file is loaded is called **load marker**.
-
-!draw!
-~;paper "Load file" |
-paper "Source" -; ball "Replacer" -; paper "Output"
-!end!
-
 A criteria for selecting passages that are included on each conversion is called **target selector** while selectors in the source text is called **in-text selectors**.
 
 ## Passage-Marked Text Examples
 
-A source text intermixed with in-text selectors (and load markers) is called **passage-marked** text.
+A source text intermixed with in-text selectors is called **passage-marked** text.
 
 Here is a simple source text with selectable passages for two languages.
 
@@ -83,13 +85,13 @@ The replacer output will be:
  This again included for every output.
 ```
 
-You can specify multiple levels of selection of passages as follows:
+In addition to language selectors, you can use version selectors to further select passages of text:
 
 ```
  /ja/
  Text for all Japanese versions.
- /ja.v2/
- This is only for version 2 of the Japanese document.
+ /.v2/
+ This is only for version 2 of the document.
  /end/
 ```
 
@@ -99,49 +101,12 @@ If you specify the target selector of 'ja' you will only get:
  Text for all Japanese versions.
 ```
 
-while you get the following if you specify 'ja.v2':
+while you get the following if you specify 'ja' and '.v2':
 
 ```
  Text for all Japanese versions.
- This is only for version 2 of the Japanese document.
+ This is only for version 2 of the document.
 ```
-
-If you want to prepare a part of a document separately from the main source, prepare a load file for some or all selections.
-
-```
- /@loaded/
- This text is used when the target load file is missing.
- /end/
-```
-
-A 'loaded' above, enclosed with '/@' and '/', is called **load marker**.
-The load marker specifies a special passage that can be replaced with a content of a separate file called load file.
-It spans until the next marker or '/end/' marker.
-
-If you prepare a file named 'loaded-ja.txt' and 'loaded-ja_v2.txt' as follows:
-
-| Filename | Content | Loaded for: |
-|--|--|--|
-| loaded-ja.txt | This is loaded for any Japanese document. | 'ja' 'ja.v2' 'ja.v2.r1' 'ja.v3' |
-| loaded-ja_v2.txt | This is loaded only for version 2 of Japanese documents. | 'ja.v2' 'ja.v2.r1' |
-
-And if you specify target selector of 'ja' you get:
-
-```
- This is loaded for any Japanese document.
-```
-Or if you specify 'ja.v2' you will get:
-
-```
- This is loaded only for version 2 of Japanese documents.
-```
-Finally if you specify 'en' and a load file for 'en' ie., loaded-en.txt' does not exist, you will get the default in-line text instead of content from a file:
-
-```
- This text is used when the target load file is missing.
-```
-
-Please note a period (.) is used to separate an in-text selector into levels while an underscores (_) is used in a load file name in the same purpose.
 
 ## Configurations
 
@@ -223,14 +188,11 @@ In a more automated environment, all you have to do is to create and edit source
 
 ## Command line arguments
 
-Usage: rep.pl [-s<i>selector</i>] [-p<i>directory</i>] < <i>input</i> > <i>output</i>
-- -s<i>selector</i> - target selector (mandatory option)
-- -p<i>directory</i> - source file location (defaults to current folder)
+Usage: rep.pl [-s<i>target-selectors</i>] [-l<i>available-languages</i>] < <i>input</i> > <i>output</i>
+- -s<i>target-selectors</i> - one or more target language or version selectors
+- -l<i>available-languages</i> - list of languages the document supports
 - <i>input</i> - source file  
 - <i>output</i> - output file
-
-If you use loaded files they must be in the same folder as the source file.
-You must specify -p option if the source file is not in the current directory.
 
 ## Source text
 
@@ -245,55 +207,95 @@ Output is the same as the source file.
 Markers are inserted in a source file.
 A marker is surrounded by a starting and ending slash (/) and occupies a line.
 
-Markers and other names used in Replacer can have Roman alphabets in upper case (A-Z) and lower case (a-z), numbers (0-9) and some symbols (depending on the type of string or name).
-Alphabets and numbers are called 'alphanumeric' in the following table.
+Markers in Replacer can have Roman alphabets in upper case (A-Z) and lower case (a-z), numbers (0-9) and some symbols (depending on the type of string or name).
 
 List of markers:
 
 | Marker | Syntax | Examples |
 |--|--|--|
-| Selector | Alphanumeric and period (.) as a level separator | /en/, /en.v2/ |
-| Load marker | Alphanumeric and underscore (_) prefixed with at mark (@) | /@intro/, /@sec_note_1/ |
+| Language selector | Language code (without regional code) | /en/, /ja/ |
+| Version selector | Dot-delimited version selector; the first character must be a dot (.) | /.v2/, /.v2.r1/ |
+
+## Types of Selectors
+
+There are two types of selectors: **language selectors** and **version selectors**.
+A language selector selects a passage written in a certain language.
+A language selector is a language code (without regional code).
+
+Examples of language selectors:
+- en
+- ja
+
+A version selector is used to select any kind of passages based on non-language criteria.
+It can be used to specify selection of a product, target customer as well as versions.
+It is called *version* selector assuming it is the most typical case.
+
+A version selector is prefixed by a dot (.) in order to distinguish from a language selector.
+It has one or more *levels* and levels are delimited by a dot.
+
+Examples of version selectors:
+- .v2 (version 2)
+- .v2.r1 (revision 1 of version 2)
+- .debian vs .centos
+- .centos.v8 (version 8 of centos)
+- .technical vs .general
+
+One note about difference between language and version selectors.
+Only one target language is selected from the list of target language selectors.
+More than one version selectors can be specified and all are used to select passages.
+For example, you can only specify 'ja' or 'kr' but you can have '.v2' and '.debian' at the same time.
 
 ## Specifyinig Target selector
 
 /en/
-The target selector will be passed to the Replacer through a command line argument of the form -s<i>selector</i> (hyhpen, lower case S, no space, followed by selector). Examples are '-sja' for Japanese text, '-sja.v2' for the second version of the Japanese text.
-
-## Load file
-
-A passage marked with the load marker will be replaced with a selected load file if it exists.
-If no load file exists that matches the selector, the original content will remain.
-
-The load file name has the following format:
-
-_load-marker_ - _selector_ . txt
-
-The _load-marker_ specifies a matching load marker in a source file.
-The _selector_ indicates what kind of content the load file contains.
-_load-marker_ and _selector_ are separated by a single hyphen (-).
-
-An underscore (_) is used to separate levels of a selector in a load file name unlike period (.) used in a target or in-text selector.
-
-A file extension of a load file must always be '.txt' regardless of the content it contains (just text or some wikitext).
-
->An extension of '.txt' is used just to distinguish load files from the main source file whose extension  will be '.md' in case of Markdown file.
+The target selectors are passed to the Replacer through a command line argument of the form -s<i>selectors</i> (hyhpen, lower case S, no space, followed by comma separated list of selectors).
 
 Examples:
+- '-sja' for Japanese text
+- '-sja,.v2' for Japanese text and also select passages for the second version
+- '-sja,kr,.v2,.v2.r2' specifies target languages 'ja' and 'kr' and versions '.v2' and '.v2.r2'
 
-- intro-en.txt
-- intro-ja.txt
-- sec_note_1-en.txt
-- sec_note_1-en_v2.txt
+## Levels of Version Selectors
 
-Note that 'en_v2' in the last example matches against a selector of 'en.v2'.
+A language selector has no level.
 
-## Selector levels
-
-An in-text selector or loaded file will be selected if it is _inclusively equals_ to the target selector.
+A version selector can have multiple levels with delimiting dots.
+A passage is selected if it is *inclusively equals* to the target version selector.
 
 | | | | | |
 |--|--|--|--|--|
-| Target selector   | en  | en    | en.v2 | en.v2 |
-| In-text selector  | en  | en.v2 | en    | en.v2 |
-| Selected?         | Yes | No    | Yes   | Yes   |
+| Target selector   | .v2  | .v2    | .v2.r1 | .v2.r1 |
+| In-text selector  | .v2  | .v2.r1 | .v2    | .v2.r1 |
+| Selected?         | .Yes | No     | Yes    | Yes    |
+
+## Nesting of Selectors
+
+The second version of the Replacer supports two levels of nested passage selection: passages for a certain version within passages of a certain language or passages written in a certain language within passages of a certain version.
+
+Example (languages then versions)
+- en
+  - .v2
+  - .v2.r1
+- ja
+  - .v2
+  - .v2.r1
+
+Example (versions then languages)
+- .v2
+  - ja
+  - en
+- .v2.r1
+  - ja
+  - -en
+
+## Available Languages
+
+There was a flaw in the first version of Replacer.
+There is no mechanism to specify what languages a document is written.
+Thus there is no way to tell whether you can get a version of the document in a certain language.
+
+Version 2 of rep.pl supports specification of available languages with -l option.
+If this option is specified, the Replacer matches the list of target language selectors one by one against a list of available languages and determines a the best target language to present the document in.
+If it can't, a default language (a perl constant of DEFLANG in rep.pl) is used.
+
+For example the target languages are (kr,ja,en) and available languages are (en,ja), 'ja' is selected. 'ja' is selected because it comes before 'en' in the target selectors list.

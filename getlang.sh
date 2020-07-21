@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # getlang.sh - a bash function to return a desired language through stdout
-# - target selector if query string of 'select=xx.yy...' specified
+# - target selector if query string of 'select=...' specified
 # - language code (without regional code) from Accept-Language HTTP header
 # - server's default language code
 # - 'en' if all failed
@@ -37,7 +37,7 @@ TGT_LANG=""
 
 if [[ $QS =~ ^select=.+ ]]; then
 	# 1) explicitly specified query string of 'select=<selector>' takes precedence
-	# this may take a form of "en" or "en.v2" etc but not "en-us"
+	# this may take a form of "en" or "ja" etc but not "en-us"
     TGT_LANG=${QS/select=/}
 else
 	# 2) take implicit Accept-Language header if select=xx missing
@@ -52,6 +52,9 @@ fi
 # note that periods (.) are not removed since select=<selector> may include them.
 TGT_LANG=$(echo $TGT_LANG | cut -d "," -f 1 | cut -d ";" -f 1 | cut -d "-" -f 1);
 
+	# TODO: current version of rep.pl accepts list of lang codes
+	# all lang codes in ACCEPT_LANGUAGE can now be passed with -s option
+	
 >&2 echo SYS_LANG = "${DEF_LANG}", DEF_LANG = "$DEF_LANG", TGT_LANG = "${TGT_LANG}"
 
 # output the determined language (or selctor) to stdout

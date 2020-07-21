@@ -12,7 +12,7 @@ The purpose of this project is to enable:
 
 The tools published here includes:
 
-- Passage Selector Loader (rep.pl)  
+- Passage Selector (rep.pl)  
 A tool for writing articles in more than one language at the same time in the same file.  
 See [README-rep](README-rep.md)
 - Apache add-on (rep.cgi) for publishing Markdown content  

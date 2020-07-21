@@ -1,8 +1,8 @@
-# Multi-Lingal Selector Loader on the Web
+# Multi-Lingal Passge Selector on the Web
 
 2020-apr-12 first edition
 
-In this document, the multi-lingal selector loader is called just 'Replacer', an old name for it.
+In this document, the multi-lingal selector is called just 'Replacer', an old name for it.
 
 Before continuing, see [README-rep](README-rep.md) to get familiar with the Replacer program and its source format, passage-marked text.
 It includes how to use the replacer locally on your PC using command line (called **local** configuration).
@@ -71,20 +71,17 @@ Rep.cgi calls the Replacer (rep.pl) and then 'pandoc' to convert passage-marked 
 
 ## Language Handling
 
-The Replacer accepts any string or dot-delimited strings as a target selector.
-Typical case is a language code (without regional code).
-In other cases, it can be a version, product name or anything.
+A web browser passes to a web server one or more language codes (such as 'en') with or without regional codes ('us' in 'en-us') which the browser user prefers to see.
 
-The web technology allows specification of one or more language codes (such as 'en') with or without regional codes ('us' in 'en-us') a browser user prefers.
+In this apache configuration, the included shell script (getLang.sh) called from the main CGI script (rep.cgi) extracts a language code in the following manner (in the order of precedence):
 
-In the apache configuration, either a Replacer-style target selector or standard language code can be used.
-It is determined in the following precedence (getLang.sh does this):
-
-- explicit request per file access: query string of the format select=<i>selector</i> as in 'http://server/news/sample.mdp?select=ja.v2' for example,
+- explicit request per file access: query string of the format select=<i>selector</i> as in 'http://server/news/sample.mdp?select=ja',
 - web browser's default language settings passed through HTTP Accept-Language header; a user can change this by Language in Options page, and
 - server's default language (stored in /etc/default/locale in debian or in /etc/sysconfig/i18n in redhat).
 
-In the latter two cases, only a language code (such as 'en' not whole 'en-us') is passed to the Replacer.
+In the latter two cases, only a list of language codes (such as 'en' not whole 'en-us') is passed to the Replacer.
+
+>getLang.sh takes only one language code although any mixture of language selectors and version selectors can be passed to the Replacer.
 
 ## Connecting to Webdav Server from your PC
 
