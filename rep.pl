@@ -17,6 +17,7 @@
 #  - tow-level selector stack
 #  - no more loader
 # 2020-jul-20 tested ok
+# 2020-jul-21 reverted to less restrict syntax; space after selector: '/en/ '
 #
 # TODO: allow /en/ at the beginning of a line?
 
@@ -119,19 +120,23 @@ sub run {
     my $targetLanguage = selectLanguage(\@targetSelectors, \@availableLanguages);
     debug_print "targetLanguage = $targetLanguage";
 
-    my @stack; # tow-level selector stack: lang over version or version over lang
+    my @stack = (); # tow-level selector stack: lang over version or version over lang
     my $lineCount = 0;
+
+    my $dbgPrev;
+    my $dbgChgd = true;
 
     foreach my $line ( <STDIN> ) {
         $lineCount++;
         if ($line =~ /^\/end\/\s*$/) { # explicit end marker - /end/
-            debug_print ">END @stack";
+            $dbgPrev = "[@stack]";
             pop @stack;
-            debug_print "<END @stack";
+            debug_print "END: $dbgPrev > [@stack]";
+            $dbgChgd = true;
         }
-        elsif ($line =~ /^\/([\w.]+)\/$/) { # intext selector - /selector/
+        elsif ($line =~ /^\/([\w.]+)\/\s*$/) { # intext selector - /selector/
             my $selector = $1;
-            debug_print ">SEL $selector -> @stack";
+            $dbgPrev = "[@stack] > \"" . ($selector // '') . '"';
             my $top = $stack[-1];
             if (@stack == 2) {
                 if (isSameType($selector, $top)) {
@@ -148,19 +153,20 @@ sub run {
                 }
             }
             push(@stack, $selector);
-            debug_print "<SEL @stack";
+            debug_print "SEL: $dbgPrev > [@stack]";
+            $dbgChgd = true;
         }
         else {
+            # check language selector
             my $langOK = true;
             my @lang = grep { isLang($_) } @stack; # only one
-            #debug_print "LINE: lang = @lang";
             if (@lang > 0) {
                 # if lang specified then check it
                 $langOK = $lang[0] eq $targetLanguage;
             }
+            # check version selector
             my $verOK = true;
             my @ver = grep { !isLang($_) } @stack; # just one
-            #debug_print "LINE: ver = @ver";
             if (@ver > 0) {
                 # if version specified then at least one of target selectors must match
                 $verOK = false;
@@ -169,7 +175,12 @@ sub run {
                     if (inclusiveEquals($ver[0], $t)) { $verOK = true; last; }
                 }
             }
-            #debug_print "LINE: langOK = $langOK, verOK = $verOK";
+            if ($dbgChgd) {
+                debug_print
+                    'LANG "' . ($lang[0] || '') . '" ' . ($langOK ? '+' : '-') .
+                    ' | VER "' . ($ver[0] || '') . '" ' . ($verOK ? '+' : '-');
+                $dbgChgd = false;
+            }
             if ($langOK && $verOK) { print $line; }
         }
     }
