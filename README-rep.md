@@ -18,7 +18,7 @@ A separate document, [README-onweb](README-onweb.md), describes another configur
 Changes in Marker Placement Rules (2020-aug-31)
 
 - A marker can be placed at the beginning of a line.
-- A new `/any/` can be used as a synonym of '/end'/.
+- A new `/any/` can be used as a synonym of `/end/`.
 
 Changes in Second Edition (2020-apr-20)
 
