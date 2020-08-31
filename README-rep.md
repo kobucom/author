@@ -1,22 +1,26 @@
 # Passage Selector in Perl
 
-2020-apr-8 first edition
-2020-apr-20 second edition
+2020-apr-8 first edition  
+2020-apr-20 second edition  
+2020-aug-31 changes in marker placement rules
 
 This program is formerly called 'Replacer' so the text below contains this name.
 
 This document has two parts: a guide to get familiar with passage marking and a reference describing acceptable source syntax.
 
 The last section of the guide describes configurations where Replacer can be used.
-The section also describes one such configuration where you keep files and generate final outputs all in your local PC.
+The section also describes one such configuration where you keep files locally and generate final outputs in your PC.
 
 A separate document, [README-onweb](README-onweb.md), describes another configuration where you keep source files on a web server and conversion is automatically done on the web server when a file is requested.
 
-# Part One: Guide
-
 ## Changes
 
-Design changes in the second edition are follows:
+Changes in Marker Placement Rules (2020-aug-31)
+
+- A marker can be placed at the beginning of a line.
+- A new `/any/` can be used as a synonym of '/end'/.
+
+Changes in Second Edition (2020-apr-20)
 
 - Multiple target selectors can be specified (-s option changed)
 - Available languages can be specified (-l option added)
@@ -24,9 +28,11 @@ Design changes in the second edition are follows:
 - tow-level selector stack (language and version selection can be nested each other)
 - Loader function removed (no more -p option)
 
+# Part One: Guide
+
 ## Introduction
 
-The Replacer reads a souce test mixed with passages for different purposes and writes the output only with the selected passages.
+The Replacer reads souce text mixed with passages for different purposes and writes the output containing only the selected passages.
 
 !draw!
 paper "Source" -; ball "Replacer" -; paper "Output"
@@ -46,15 +52,14 @@ A **selector** is used to specify which passages should be output for a final ou
 
 To create a Japanese document, only Japanese passages are taken:
 
-| | | | | |
+| | Source | | Output | |
 |--|--|--|--|--|
 |  | English |  |  |  |
 |  | Japanese | -> | Japanese |  |
 |  | English |  |  |  |
 |  | Japanese | -> | Japanese |  |
-|  |  |  |  |  |
 
-A criteria for selecting passages that are included on each conversion is called **target selector** while selectors in the source text is called **in-text selectors**.
+Command line arguments to Replacer for selecting passages that are included on each conversion is called **target selector** while selectors in the source text is called **in-text selectors**.
 
 ## Passage-Marked Text Examples
 
@@ -72,11 +77,12 @@ Here is a simple source text with selectable passages for two languages.
  This again included for every output.
 ```
 A marker enclosed in two slasshes (/.../) is called a selector (precisely in-text selector).
-In this case, a passage following '/en/' is in English and '/ja/' in Japanese.
-A passage continues until a new selector appears or '/end/' marker appears.
+In this case, a passage following `/en/` is in English and `/ja/` in Japanese.
+A passage continues until a new selector appears or `/end/` marker appears.
 The end marker resets a passage selection.
+[2020-aug-31] A selector of `/any/` is a synonym of `/end/`.
 
-If you want to produce a document in English, you tell the Replacer the target selector is 'en'.
+If you want to produce a document in English, you tell Replacer the target selector is `en`.
 The replacer output will be:
 
 ```
@@ -85,7 +91,7 @@ The replacer output will be:
  This again included for every output.
 ```
 
-In addition to language selectors, you can use version selectors to further select passages of text:
+In addition to language selectors, you can use version selectors to deepen your selection:
 
 ```
  /ja/
@@ -93,20 +99,46 @@ In addition to language selectors, you can use version selectors to further sele
  /.v2/
  This is only for version 2 of the document.
  /end/
+ This is again for all Japanese versions.
+ /end/
+ End of Japanese passages.
 ```
 
-If you specify the target selector of 'ja' you will only get:
-
-```
- Text for all Japanese versions.
-```
-
-while you get the following if you specify 'ja' and '.v2':
+If you specify the target selector of `ja` you will get:
 
 ```
  Text for all Japanese versions.
- This is only for version 2 of the document.
+ This is again for all Japanese versions.
+ End of Japanese passages.
 ```
+
+while you get the following if you specify `ja` and `.v2`:
+
+```
+ Text for all Japanese versions.
+ This is again for all Japanese versions.
+ This is again for all Japanese versions. <-- added
+ End of Japanese passages.
+```
+
+[2020-aug-31] For convenience, a marker can appear at the beginning of line.
+A newline can be omitted.
+You can insert a space between the marker and the following text.
+Or the text can follow immediately after the marker.
+A newly-introduced marker of `/any/` can be used in place of `/end/`.
+The first example can be written as below.
+
+```
+ This is a common part for any languages.
+ /en/ This text is included when the request language is English.
+ /ja/This text is for Japanese only.
+ /any/ This again included for every output.
+```
+
+> Note that a marker cannot appear at the end of a line.
+This rule is for readability (you can easily miss a marker at the end of a paragraph).
+
+
 
 ## Configurations
 
@@ -137,7 +169,7 @@ Windows users have two choices: install Windows version of perl interprepter suc
 To create a Markdown file with Japanese content (sample-ja.md) from passage-marked source (sample.md):
 
 ```
-$perl -sja <sample.md >sample-ja.md
+$ perl rep.pl -sja <sample.md >sample-ja.md
 ```
 
 !draw!
@@ -153,7 +185,7 @@ paper "sample-ja.md" -; ball "Converter" -; paper "sample-ja.html"
 Linux has some tools to do that: for example, 'pandoc' command can process a Github-flavoured Markdown file and generate HTML and other formats.
 
 ```
-$pandoc sample-ja.md -o sample-ja.html
+$ pandoc -f gfm sample-ja.md -o sample-ja.html
 ```
 
 For your infomation, I use Visual Stduio Code (vscode) to edit and preview Markdown text and one of many Markdown extentions to produce HTML or PDF file output.
@@ -166,6 +198,7 @@ $sftp author@www.example.com
 Password: .....
 >cd /var/www/html
 >put sample-ja.html
+>put sample-en.html
 >quit
 ```
 
@@ -178,15 +211,15 @@ Now a browser user can access this file via URL of 'http://www.example.com/sampl
 ## Apache configuration
 
 In a more advanced configuration, you don't need to do all of these steps manually.
-In a more automated environment, all you have to do is to create and edit source files and everything else can be done automatically.
+All you have to do is to create and edit source files and everything else can be done automatically.
 
-[README-onweb](README-onweb.md) describes how to incorporate the Replacer into Apache web server environment where storage of source files and all conversion works are done automatically on the server.
+[README-onweb](README-onweb.md) describes how to incorporate Replacer into an Apache web server environment where storage of source files and all conversion works are done automatically on the server.
 
----
+&nbsp;
 
 # Part Two: Reference
 
-## Command line arguments
+## Command Line Arguments
 
 Usage: rep.pl [-s<i>target-selectors</i>] [-l<i>available-languages</i>] < <i>input</i> > <i>output</i>
 - -s<i>target-selectors</i> - one or more target language or version selectors
@@ -196,8 +229,8 @@ Usage: rep.pl [-s<i>target-selectors</i>] [-l<i>available-languages</i>] < <i>in
 
 ## Source text
 
-Source text processed by Replacer is called passage-marked text.
-It is a source text intermixed with passage markers enclosed in two slashes (/.../)
+A source text file processed by Replacer is called passage-marked text.
+Text in the source is intermixed with passage markers enclosed in two slashes (/.../)
 
 A source file without passage markers can be passed to Replacer.
 Output is the same as the source file.
@@ -206,6 +239,7 @@ Output is the same as the source file.
 
 Markers are inserted in a source file.
 A marker is surrounded by a starting and ending slash (/) and occupies a line.
+[2020-aug-31] Or it can appear exactly at the beginning of a line.
 
 Markers in Replacer can have Roman alphabets in upper case (A-Z) and lower case (a-z), numbers (0-9) and some symbols (depending on the type of string or name).
 
@@ -215,22 +249,27 @@ List of markers:
 |--|--|--|
 | Language selector | Language code (without regional code) | /en/, /ja/ |
 | Version selector | Dot-delimited version selector; the first character must be a dot (.) | /.v2/, /.v2.r1/ |
+| End marker | Ends the current selection of a language or version | /end/ or /any/ |
 
 ## Types of Selectors
 
 There are two types of selectors: **language selectors** and **version selectors**.
 A language selector selects a passage written in a certain language.
-A language selector is a language code (without regional code).
+A language selector is a language code without regional code.
+'en' is usable but 'en-us' is not.
 
 Examples of language selectors:
+
 - en
 - ja
+- kr
+- fr
 
 A version selector is used to select any kind of passages based on non-language criteria.
 It can be used to specify selection of a product, target customer as well as versions.
 It is called *version* selector assuming it is the most typical case.
 
-A version selector is prefixed by a dot (.) in order to distinguish from a language selector.
+A version selector is prefixed by a dot (.) in order to distinguish it from a language selector.
 It has one or more *levels* and levels are delimited by a dot.
 
 Examples of version selectors:
@@ -241,19 +280,10 @@ Examples of version selectors:
 - .technical vs .general
 
 One note about difference between language and version selectors.
-Only one target language is selected from the list of target language selectors.
-More than one version selectors can be specified and all are used to select passages.
-For example, you can only specify 'ja' or 'kr' but you can have '.v2' and '.debian' at the same time.
-
-## Specifyinig Target selector
-
-/en/
-The target selectors are passed to the Replacer through a command line argument of the form -s<i>selectors</i> (hyhpen, lower case S, no space, followed by comma separated list of selectors).
-
-Examples:
-- '-sja' for Japanese text
-- '-sja,.v2' for Japanese text and also select passages for the second version
-- '-sja,kr,.v2,.v2.r2' specifies target languages 'ja' and 'kr' and versions '.v2' and '.v2.r2'
+Only one target language is selected from a list of candidate languages.
+More than one version selectors can be effective and all are used to select passages.
+For example, either 'ja' or 'kr' is effective even if you specify both.
+You can have '.v2' and '.debian' at the same time.
 
 ## Levels of Version Selectors
 
@@ -266,9 +296,11 @@ A passage is selected if it is *inclusively equals* to the target version select
 |--|--|--|--|--|
 | Target selector   | .v2  | .v2    | .v2.r1 | .v2.r1 |
 | In-text selector  | .v2  | .v2.r1 | .v2    | .v2.r1 |
-| Selected?         | .Yes | No     | Yes    | Yes    |
+| Selected?         | Yes | No     | Yes    | Yes    |
 
 ## Nesting of Selectors
+
+[2020-apr-20]
 
 The second version of the Replacer supports two levels of nested passage selection: passages for a certain version within passages of a certain language or passages written in a certain language within passages of a certain version.
 
@@ -288,14 +320,63 @@ Example (versions then languages)
   - ja
   - -en
 
+## End marker
+
+[2020-aug-31]
+
+A new language or version marker resets passages for language and version respectively.
+
+```
+ /ja/
+ Japanese
+ /en/
+ English
+ /ja/
+ Japanese again
+ ...
+```
+
+You can explicitely end passages for a language or version using an end marker.
+The end marker is `/end/` or `/any/`.
+You can use either of them.
+
+```
+ /ja/
+ Japanese
+ /end/
+ A passage for both English and Japanese
+ /ja/
+ Japanese again
+ ...
+```
+
+## Specifyinig Target selector
+
+Target selectors are passed to Replacer through a command line argument of the form -s<i>selectors</i> (hyhpen, lower case S, no space, followed by comma separated list of selectors).
+
+You have to specify at least one language selector.
+The replacer selects only one target language by matching the specified target languages with available languages (see below).
+
+You can specify zero or more version selectors.
+All the specified version selectors are in effect and used to match passages for a specific version.
+
+Examples:
+- '-sja' for Japanese text
+- '-sja,.v2' for Japanese text and passages for the second version
+- '-sja,kr,.v2,.v2.r2' specifies target languages `ja` and `kr` and versions `.v2` and `.v2.r2`
+
+In the last case, an either `ja` or `kr` will finally be selected depending on the available languages described in the next section.
+
 ## Available Languages
+
+[2020-apr-20]
 
 There was a flaw in the first version of Replacer.
 There is no mechanism to specify what languages a document is written.
 Thus there is no way to tell whether you can get a version of the document in a certain language.
 
-Version 2 of rep.pl supports specification of available languages with -l option.
+Version 2 of rep.pl supports specification of available languages with `-l` option.
 If this option is specified, the Replacer matches the list of target language selectors one by one against a list of available languages and determines a the best target language to present the document in.
 If it can't, a default language (a perl constant of DEFLANG in rep.pl) is used.
 
-For example the target languages are (kr,ja,en) and available languages are (en,ja), 'ja' is selected. 'ja' is selected because it comes before 'en' in the target selectors list.
+For example the target languages are (kr, ja, en) and available languages are (en, ja), `ja` is selected. `ja` is selected because it comes before `en` in the target selectors list.

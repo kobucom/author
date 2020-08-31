@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 # rep.pl - passage selector aka multi-lingal replcacer
 # 2020-apr-06 started
@@ -18,8 +18,9 @@
 #  - no more loader
 # 2020-jul-20 tested ok
 # 2020-jul-21 reverted to less restrict syntax; space after selector: '/en/ '
+# 2020-aug-31 marker at the beginning of a line; /any/ == /end/
 #
-# TODO: allow /en/ at the beginning of a line?
+# TODO: create a perl-callable interface for Embedder
 
 use strict;
 use warnings;
@@ -46,11 +47,11 @@ sub debug_print {
 }
 
 # $bool = isLang($selector)
-# true if the selector is language selector
+# true if the selector is language selector (language code)
 # otherwise the selector is version selector which starts with dot '.'
 sub isLang {
     my $s = shift;
-    return not $s =~ /^\./;
+    return not $s =~ /\./;
 }
 
 # $bool = isSameType($sel1, $sel2)
@@ -60,6 +61,7 @@ sub isSameType {
     return (isLang($s1) && isLang($s2)) || (!isLang($s1) && !isLang($s2));
 }
 
+# (shared with embedder)
 # $targetLanguage = selectLanguage($targetSelectors_ref, $availableLanguages_ref);
 # find the first selector in target selectors that match any of available selectors.
 # DEFLANG (en) if no match found
@@ -99,42 +101,59 @@ sub inclusiveEquals {
 
 # main code
 
-sub run {
+{
     # arguments
     my @targetSelectors = (); # -s option - selectors specified by the user
     my @availableLanguages = (); # -l option - language list supported by the document
+    my $targetLanguage; # single selected language
 
-    # Usage: rep.pl [-d] [-s<target-selectors>] [-l<available-languages>]
-    foreach my $arg (@ARGV) {
-        if ($arg =~ '^-d$') { $debug = 1; }
-        elsif ($arg =~ '^-s([\w.,]+)$') { @targetSelectors = split(/,/, $1); }
-        elsif ($arg =~ '^-l([\w.,]+)$') { @availableLanguages = split(/,/, $1); }
-        elsif ($arg =~ '^-p.*$') { warn_print "The -p option not supported any more ... ignored"; }
-        else { die "[ERROR] no such option: $arg"; }
-    }
-
-    debug_print "targetSelectors = @targetSelectors";
-    debug_print "availableLanguages = @availableLanguages";
-
-    # determine target language
-    my $targetLanguage = selectLanguage(\@targetSelectors, \@availableLanguages);
-    debug_print "targetLanguage = $targetLanguage";
-
+    # inter-line states
     my @stack = (); # tow-level selector stack: lang over version or version over lang
-    my $lineCount = 0;
-
     my $dbgPrev;
     my $dbgChgd = true;
+    my $lineCount = 0;
 
-    foreach my $line ( <STDIN> ) {
-        $lineCount++;
-        if ($line =~ /^\/end\/\s*$/) { # explicit end marker - /end/
+    sub run {
+        
+        # Usage: rep.pl [-d] [-s<target-selectors>] [-l<available-languages>]
+        foreach my $arg (@ARGV) {
+            if ($arg =~ '^-d$') { $debug = 1; }
+            elsif ($arg =~ '^-s([\w.,]+)$') { @targetSelectors = split(/,/, $1); }
+            elsif ($arg =~ '^-l([\w.,]+)$') { @availableLanguages = split(/,/, $1); }
+            elsif ($arg =~ '^-p.*$') { warn_print "The -p option not supported any more ... ignored"; }
+            else { die "[ERROR] no such option: $arg"; }
+        }
+
+        debug_print "targetSelectors = @targetSelectors";
+        debug_print "availableLanguages = @availableLanguages";
+
+        # determine target language
+        $targetLanguage = selectLanguage(\@targetSelectors, \@availableLanguages);
+        debug_print "targetLanguage = $targetLanguage";
+
+        foreach my $line ( <STDIN> ) {
+            $lineCount++;
+            if ($line =~ /^(\/[\w.]+\/)\s*([^\s].*)$/) { # /marker/ text...
+                my $marker = $1;
+                $line = $2;
+                handleLine($marker); # pass marker alone
+            }
+            handleLine($line);
+        }
+    }
+
+    sub handleLine {
+        my $line = shift;
+
+        # explicit end marker - /end/ or /any/
+        if ($line =~ /^\/(end|any)\/\s*$/) {
             $dbgPrev = "[@stack]";
             pop @stack;
             debug_print "END: $dbgPrev > [@stack]";
             $dbgChgd = true;
         }
-        elsif ($line =~ /^\/([\w.]+)\/\s*$/) { # intext selector - /selector/
+        # intext selector - /selector/
+        elsif ($line =~ /^\/([\w.]+)\/\s*$/) {
             my $selector = $1;
             $dbgPrev = "[@stack] > \"" . ($selector // '') . '"';
             my $top = $stack[-1];
