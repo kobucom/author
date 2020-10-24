@@ -1,16 +1,55 @@
-/* minimum stylesheet for pandoc output from markdown (gfm) */
-/* revised from htmlput.css written for usf formatter */
+/* last updated: 2020-Oct-09 */
+/* stylesheet for dynamic pandoc output from markdown (gfm) */
+/* revised from htmlput.css for static pandoc output */
 
+/* table with grids all sides */
+table { border-collapse: collapse; }
+td, th { border: solid thin gray; padding: 6pt; font-family: sans-serif; }
+
+/* box surrounding embedder form */
+div.box { margin: 1em; padding: 0.5em 0.5em; border: solid thin lightgrey; }
+
+/* elements in the form */
+div.box textarea { vertical-align: top; }
+div.box p { font-size: 120%; font-family: sans-serif; }
+
+/* entry box size */
+textarea { width: 50em; }
+input[type="text"] { width: 50em; }
+
+/***** common to static and dynamic */
+
+/* from pandoc inline styles with --standalone option */
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+
+/* inline code (`...`) <p><code>... in pandoc */
+code { font-family: monospace; color: maroon; font-weight: bold }
+
+/* code block (```) = <pre><code>... in pandoc */
+pre { line-height: 125%; margin: 1em; padding: 0.5em 0.5em; border: solid thin lightgrey; }
+pre code { color: black; font-weight: normal }
+
+/* quote (>) = <blockquote><p>... in pandoc */
+blockquote { line-height: 125%; font-size: 80%; }
+
+/* replacer classes */
+.smaller { font-size: 80% }
+.bigger { font-size: 120% }
+.right { text-align: right }
+.center { text-align: center }
+.border { border: solid thin gray }
+
+/* body default */
 * { line-height: 150%; }
 body { margin: 2em 4em; }
 li { margin-bottom: 0.3em; }
-pre { line-height: 125%; background: whitesmoke; }
-blockquote p { line-height: 125%; background: seashell; font-size: 80%; }
-table { border-collapse: collapse; }
-table td { border-top: solid thin gray; padding: 6pt; }
 
+/* title */
 h1, h2, h3, h4, h5, h6 { font-family: sans-serif; }
-h1 { color: navy; }
+h1, h3, h4 { color: navy; }
 h2
 {
  margin-top: 3em;
@@ -18,9 +57,9 @@ h2
  border-top: 1px lightsteelblue solid;
  padding-top: 0.5em;
 }
-h3, h4 { color: navy; }
 
-a:link { color: blue; text-decoration: none }
-a:visited { color: purple; text-decoration: none }
-a:hover { color: teal; }
-a:active { color: aqua; }
+/* link decoration */
+a:visited { color: navy; text-decoration: none }
+a:link { color: royalblue; text-decoration: none }
+a:hover { color: dodgerblue; }
+a:active { color: deepskyblue; }
