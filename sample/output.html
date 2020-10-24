@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>PREPRO – Sample</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="pandoc-gfm.css" />
+</head>
+<body>
+<header>
+<h1 class="title">Sample</h1>
+</header>
+<h1 id="prepro-preprocessors-demo">PREPRO Preprocessors Demo</h1>
+<h2 id="selector---mixed-languages">Selector - mixed languages</h2>
+<p>You can use apt command to install Apache web server on Debian:</p>
+<p>$ sudo apt install apache2</p>
+<h2 id="selector---version-selectors">Selector - version selectors</h2>
+<p>To install apache:</p>
+<p>$sudo apt install apache2</p>
+<h2 id="selector---prefix-style-test">Selector - prefix style test</h2>
+<p>This text is included when the request language is English.</p>
+<p>In any language ...</p>
+<h2 id="draw---inline-svg-chart">Draw - inline SVG chart</h2>
+<p>A limited types of shapes with centered text can be drawn with lines to neighboring shapes.</p>
+<svg width="450" height="200" style="fill:gainsboro;stroke:gray;stroke-width:1">
+<rect x="25" y="25" rx="10" ry="10" width="100" height="50" style="stroke-width:2;opacity:0.5" />
+<text x="75" y="50" style="fill:gray;stroke-width:1;dominant-baseline:middle;text-anchor:middle">PC</text>
+<line x1="130" y1="50" x2="170" y2="50" style="opacity:0.75" />
+<ellipse cx="225" cy="50" rx="50" ry="25" style="stroke-width:2;opacity:0.5" /><text x="225" y="50" style="fill:gray;stroke-width:1;dominant-baseline:middle;text-anchor:middle">sftp</text>
+<line x1="280" y1="50" x2="320" y2="50" style="opacity:0.75" />
+<line x1="225" y1="80" x2="225" y2="120" style="opacity:0.75" />
+<rect x="325" y="25" width="100" height="50" style="fill:white" />
+<rect x="325" y="30" width="100" height="40" style="fill:white" />
+<text x="375" y="50" style="fill:gray;stroke-width:1;dominant-baseline:middle;text-anchor:middle">Server Folder</text>
+<polygon points="175,125 175,175 275,175 275,135 265,125" style="fill:white" /><text x="225" y="150" style="fill:gray;stroke-width:1;dominant-baseline:middle;text-anchor:middle">File</text>
+Inline SVG not supported by your browser
+</svg>
+
+<h2 id="style---apply-stylesheet-classes">Style - apply stylesheet classes</h2>
+<p>Left side - default</p>
+<div class="center">
+
+<p>Centered text</p>
+</div><!-- center -->
+
+<div class="right">
+
+<p>Right-aligned text</p>
+</div><!-- right -->
+
+<h2 id="include---file-load-test">Include - file load test</h2>
+<p>[local file]</p>
+<h3 id="foomd">foo.md</h3>
+<p>Hello <strong>Wonderful</strong> World.</p>
+<p>[remote content]</p>
+<h3 id="barmd">bar.md</h3>
+<p>You already know the world is <em>Wonderful</em>.</p>
+</body>
+</html>
