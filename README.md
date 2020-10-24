@@ -74,8 +74,8 @@ A brief introduction page describes what and how you can do with these tools:
 
 See the documentation of the tools:
 
-- [English](https://kobu.com/author/guide.html)
-- [Japansese](https://kobu.com/author/guide-en.html)
+- [English](https://kobu.com/author/guide-en.html)
+- [Japansese](https://kobu.com/author/guide.html)
 
 For a tool by tool syntax summary, see [syntax.html](https://kobu.com/author/syntax.html) (English).
 
